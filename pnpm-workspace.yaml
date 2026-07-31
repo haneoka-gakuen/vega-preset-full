@@ -1,0 +1,24 @@
+packages:
+  - "."
+  - ".dependencies/vega"
+  - ".dependencies/vega/packages/protocol"
+  - ".dependencies/vega-plugin-ending"
+  - ".dependencies/vega-plugin-cubism"
+  - ".dependencies/vega-plugin-richtext"
+  - ".dependencies/vega-plugin-richtext-bbcode"
+  - ".dependencies/vega-plugin-richtext-html"
+  - ".dependencies/vega-plugin-richtext-latex"
+  - ".dependencies/vega-plugin-richtext-markdown"
+  - ".dependencies/vega-plugin-richtext-typst"
+  - ".dependencies/vega-plugin-spine"
+  - ".dependencies/vega-plugin-webgal"
+  - ".dependencies/vega-renderer-pixi"
+  - ".dependencies/vega-renderer-three"
+  - ".dependencies/vega-shell-default"
+  - ".dependencies/vega-theme-haneoka"
+  - ".dependencies/vega-ui-portable"
+
+linkWorkspacePackages: true
+
+allowBuilds:
+  esbuild: true

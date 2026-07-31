@@ -1,0 +1,126 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: vega-preset-full
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: haneoka-gakuen/vega
+          path: vega-preset-full/.dependencies/vega
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: haneoka-gakuen/vega-plugin-cubism
+          path: vega-preset-full/.dependencies/vega-plugin-cubism
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: haneoka-gakuen/vega-plugin-richtext
+          path: vega-preset-full/.dependencies/vega-plugin-richtext
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: haneoka-gakuen/vega-plugin-richtext-bbcode
+          path: vega-preset-full/.dependencies/vega-plugin-richtext-bbcode
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: haneoka-gakuen/vega-plugin-richtext-html
+          path: vega-preset-full/.dependencies/vega-plugin-richtext-html
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: haneoka-gakuen/vega-plugin-richtext-latex
+          path: vega-preset-full/.dependencies/vega-plugin-richtext-latex
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: haneoka-gakuen/vega-plugin-richtext-markdown
+          path: vega-preset-full/.dependencies/vega-plugin-richtext-markdown
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: haneoka-gakuen/vega-plugin-richtext-typst
+          path: vega-preset-full/.dependencies/vega-plugin-richtext-typst
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: haneoka-gakuen/vega-plugin-spine
+          path: vega-preset-full/.dependencies/vega-plugin-spine
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: haneoka-gakuen/vega-plugin-webgal
+          path: vega-preset-full/.dependencies/vega-plugin-webgal
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: haneoka-gakuen/vega-renderer-pixi
+          path: vega-preset-full/.dependencies/vega-renderer-pixi
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: haneoka-gakuen/vega-renderer-three
+          path: vega-preset-full/.dependencies/vega-renderer-three
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: haneoka-gakuen/vega-shell-default
+          path: vega-preset-full/.dependencies/vega-shell-default
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: haneoka-gakuen/vega-theme-haneoka
+          path: vega-preset-full/.dependencies/vega-theme-haneoka
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: haneoka-gakuen/vega-ui-portable
+          path: vega-preset-full/.dependencies/vega-ui-portable
+          persist-credentials: false
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+        with:
+          version: 11.14.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: vega-preset-full/pnpm-lock.yaml
+      - working-directory: vega-preset-full
+        run: pnpm install --frozen-lockfile
+      - working-directory: vega-preset-full
+        run: pnpm --filter @haneoka/vega-protocol build && pnpm --filter @haneoka/vega build:core
+      - working-directory: vega-preset-full
+        run: |
+          pnpm --filter @haneoka/vega-plugin-cubism build
+          pnpm --filter @haneoka/vega-plugin-richtext build
+          pnpm --filter @haneoka/vega-plugin-richtext-bbcode build
+          pnpm --filter @haneoka/vega-plugin-richtext-html build
+          pnpm --filter @haneoka/vega-plugin-richtext-latex build
+          pnpm --filter @haneoka/vega-plugin-richtext-markdown build
+          pnpm --filter @haneoka/vega-plugin-richtext-typst build
+          pnpm --filter @haneoka/vega-plugin-spine build
+          pnpm --filter @haneoka/vega-plugin-webgal build
+          pnpm --filter @haneoka/vega-renderer-pixi build
+          pnpm --filter @haneoka/vega-renderer-three build
+          pnpm --filter @haneoka/vega-shell-default build
+          pnpm --filter @haneoka/vega-theme-haneoka build
+          pnpm --filter @haneoka/vega-ui-portable build
+      - working-directory: vega-preset-full
+        run: pnpm check
+      - working-directory: vega-preset-full
+        run: pnpm pack --dry-run
