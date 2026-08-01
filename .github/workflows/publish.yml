@@ -105,7 +105,7 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: node scripts/verify-release-tag.mjs
       - working-directory: vega-preset-full
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
       - working-directory: vega-preset-full
         run: |
           pnpm --filter @haneoka/vega-protocol build
