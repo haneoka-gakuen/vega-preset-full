@@ -119,6 +119,7 @@ jobs:
           pnpm --filter @haneoka/vega-plugin-richtext-markdown build
           pnpm --filter @haneoka/vega-plugin-richtext-typst build
           pnpm --filter @haneoka/vega-plugin-spine build
+          pnpm --filter @haneoka/vega-plugin-ending build
           pnpm --filter @haneoka/vega-renderer-pixi build
           pnpm --filter @haneoka/vega-renderer-three build
           pnpm --filter @haneoka/vega-plugin-webgal build
