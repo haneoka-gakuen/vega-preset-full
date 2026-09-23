@@ -4,6 +4,7 @@ packages:
   - ".dependencies/vega/packages/protocol"
   - ".dependencies/vega-plugin-ending"
   - ".dependencies/vega-plugin-cubism"
+  - ".dependencies/vega-plugin-composite"
   - ".dependencies/vega-plugin-richtext"
   - ".dependencies/vega-plugin-richtext-bbcode"
   - ".dependencies/vega-plugin-richtext-html"

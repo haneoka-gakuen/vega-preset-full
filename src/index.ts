@@ -1,27 +1,19 @@
+import { createCompositePlugin } from "@haneoka/vega-plugin-composite";
 import {
   defineVegaPlugin,
   type VegaPlugin,
   type VegaPluginContext,
   type VegaThemeContribution,
 } from "@haneoka/vega/plugin";
-import {
-  createCubismPlugin,
-  type CubismRuntimeAdapter,
-} from "@haneoka/vega-plugin-cubism";
-import {
-  createSpinePlugin,
-  type SpineRuntimeAdapter,
-} from "@haneoka/vega-plugin-spine";
-import {
-  createVegaEndingPlugin,
-  type VegaEndingPluginOptions,
-} from "@haneoka/vega-plugin-ending";
+import { createCubismPlugin, type CubismRuntimeAdapter } from "@haneoka/vega-plugin-cubism";
+import { createSpinePlugin, type SpineRuntimeAdapter } from "@haneoka/vega-plugin-spine";
+import { createVegaEndingPlugin, type VegaEndingPluginOptions } from "@haneoka/vega-plugin-ending";
 import { createVegaRichTextPlugin } from "@haneoka/vega-plugin-richtext";
 import { createWebGalCompatibilityPlugin } from "@haneoka/vega-plugin-webgal";
 import { createPixiRendererPlugin } from "@haneoka/vega-renderer-pixi";
 import { createThreeRendererPlugin } from "@haneoka/vega-renderer-three";
 import vegaDefaultShell from "@haneoka/vega-shell-default";
-import { vegaHaneokaTheme } from "@haneoka/vega-theme-haneoka";
+import { vegaHaneokaTheme, HANEOKA_POST_TEXTURE_ASSETS } from "@haneoka/vega-theme-haneoka";
 import { vegaPortableUiPlugin } from "@haneoka/vega-ui-portable";
 
 export interface VegaFullPresetRichTextOptions {
@@ -37,6 +29,7 @@ export interface VegaFullPresetOptions {
   readonly shell?: boolean;
   readonly theme?: "portable" | "haneoka" | "webgal" | false;
   readonly cubism?: CubismRuntimeAdapter | false;
+  readonly composite?: boolean;
   readonly spine?: SpineRuntimeAdapter | false;
   /** Completion screen. Enabled with portable defaults unless set to false. */
   readonly ending?: VegaEndingPluginOptions | false;
@@ -81,15 +74,9 @@ const RICH_TEXT_FORMAT_PLUGINS = Object.freeze({
     name: "Vega Rich Text — Typst",
     load: () => import("@haneoka/vega-plugin-richtext-typst"),
   },
-} satisfies Readonly<
-  Record<keyof VegaFullPresetRichTextOptions, LazyRichTextPluginDescriptor>
->);
+} satisfies Readonly<Record<keyof VegaFullPresetRichTextOptions, LazyRichTextPluginDescriptor>>);
 
-const createLazyRichTextPlugin = ({
-  id,
-  name,
-  load,
-}: LazyRichTextPluginDescriptor): VegaPlugin =>
+const createLazyRichTextPlugin = ({ id, name, load }: LazyRichTextPluginDescriptor): VegaPlugin =>
   defineVegaPlugin({
     manifest: {
       id,
@@ -108,11 +95,7 @@ const createLazyRichTextPlugin = ({
     },
   });
 
-const withThemeDefault = (
-  plugin: VegaPlugin,
-  themeId?: string,
-  includeThemes = true,
-): VegaPlugin => ({
+const withThemeDefault = (plugin: VegaPlugin, themeId?: string, includeThemes = true): VegaPlugin => ({
   manifest: plugin.manifest,
   setup(context) {
     const themedContext: VegaPluginContext = {
@@ -123,11 +106,7 @@ const withThemeDefault = (
         contributionOptions?: Parameters<VegaPluginContext["contribute"]>[2],
       ) => {
         if (kind !== "theme") {
-          return context.contribute(
-            kind as never,
-            contribution as never,
-            contributionOptions,
-          );
+          return context.contribute(kind as never, contribution as never, contributionOptions);
         }
         if (!includeThemes) return () => undefined;
         const theme = contribution as VegaThemeContribution;
@@ -150,22 +129,14 @@ const withThemeDefault = (
  * not hide adapter choices: model runtimes appear only when explicitly
  * supplied by the application.
  */
-export const createVegaFullPreset = (
-  options: VegaFullPresetOptions = {},
-): readonly VegaPlugin[] => {
-  const renderer = options.renderer ?? "pixi";
-  const theme =
-    options.theme ?? (renderer === "webgal" ? "webgal" : "portable");
+export const createVegaFullPreset = (options: VegaFullPresetOptions = {}): readonly VegaPlugin[] => {
+  const renderer = options.renderer ?? "three";
+  const theme = options.theme ?? (renderer === "webgal" ? "webgal" : options.shell === false ? "portable" : "haneoka");
   if (theme === "haneoka" && options.shell === false) {
-    throw new TypeError(
-      "The Haneoka theme requires the portable UI and default shell",
-    );
+    throw new TypeError("The Haneoka theme requires the portable UI and default shell");
   }
   const plugins: VegaPlugin[] = [];
-  const richTextFormats =
-    options.richText && typeof options.richText === "object"
-      ? options.richText
-      : undefined;
+  const richTextFormats = options.richText && typeof options.richText === "object" ? options.richText : undefined;
 
   if (renderer === "webgal") {
     plugins.push(
@@ -179,7 +150,11 @@ export const createVegaFullPreset = (
   } else if (renderer === "pixi") {
     plugins.push(createPixiRendererPlugin());
   } else if (renderer === "three") {
-    plugins.push(createThreeRendererPlugin());
+    plugins.push(
+      createThreeRendererPlugin({
+        ...(theme === "haneoka" ? { postTextureAssets: HANEOKA_POST_TEXTURE_ASSETS } : {}),
+      }),
+    );
   }
   if (theme === "webgal" && renderer !== "webgal") {
     plugins.push(
@@ -192,25 +167,13 @@ export const createVegaFullPreset = (
       ),
     );
   }
-  if (
-    theme === "portable" ||
-    theme === "haneoka" ||
-    richTextFormats !== undefined
-  ) {
+  if (theme === "portable" || theme === "haneoka" || richTextFormats !== undefined) {
     plugins.push(createVegaRichTextPlugin());
   }
   if (richTextFormats) {
-    for (const format of [
-      "bbcode",
-      "html",
-      "latex",
-      "markdown",
-      "typst",
-    ] as const) {
+    for (const format of ["bbcode", "html", "latex", "markdown", "typst"] as const) {
       if (richTextFormats[format]) {
-        plugins.push(
-          createLazyRichTextPlugin(RICH_TEXT_FORMAT_PLUGINS[format]),
-        );
+        plugins.push(createLazyRichTextPlugin(RICH_TEXT_FORMAT_PLUGINS[format]));
       }
     }
   }
@@ -220,6 +183,7 @@ export const createVegaFullPreset = (
   if (theme === "haneoka") {
     plugins.push(withThemeDefault(vegaPortableUiPlugin));
   }
+  if (options.composite !== false && renderer === "three") plugins.push(createCompositePlugin());
   if (options.cubism) {
     plugins.push(createCubismPlugin({ adapter: options.cubism }));
   }
@@ -227,38 +191,24 @@ export const createVegaFullPreset = (
     plugins.push(createSpinePlugin({ adapter: options.spine }));
   }
   if (options.shell !== false) {
-    plugins.push(
-      withThemeDefault(vegaDefaultShell, undefined, theme !== false),
-    );
+    plugins.push(withThemeDefault(vegaDefaultShell, undefined, theme !== false));
   }
   if (theme === "haneoka") {
     plugins.push(withThemeDefault(vegaHaneokaTheme, "haneoka"));
   }
   if (options.ending !== false) {
-    plugins.push(
-      createVegaEndingPlugin(
-        options.ending && typeof options.ending === "object"
-          ? options.ending
-          : {},
-      ),
-    );
+    plugins.push(createVegaEndingPlugin(options.ending && typeof options.ending === "object" ? options.ending : {}));
   }
   plugins.push(
     ...(options.additionalPlugins ?? []).map((plugin) =>
-      withThemeDefault(
-        plugin,
-        theme === false ? undefined : theme,
-        theme !== false,
-      ),
+      withThemeDefault(plugin, theme === false ? undefined : theme, theme !== false),
     ),
   );
 
   const ids = new Set<string>();
   for (const plugin of plugins) {
     if (ids.has(plugin.manifest.id)) {
-      throw new Error(
-        `Vega full preset contains duplicate plugin ${plugin.manifest.id}`,
-      );
+      throw new Error(`Vega full preset contains duplicate plugin ${plugin.manifest.id}`);
     }
     ids.add(plugin.manifest.id);
   }

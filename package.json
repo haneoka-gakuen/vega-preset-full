@@ -44,7 +44,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "verify:package": "node scripts/verify-package.mjs",
     "check": "pnpm run typecheck && pnpm run build && pnpm run verify:package",
-    "prepack": "pnpm run check"
+    "prepack": "pnpm run check",
+    "format": "prettier --write . --ignore-unknown",
+    "format:check": "prettier --check . --ignore-unknown"
   },
   "dependencies": {
     "@haneoka/vega-plugin-ending": "workspace:*",
@@ -61,7 +63,8 @@
     "@haneoka/vega-renderer-three": "workspace:*",
     "@haneoka/vega-shell-default": "workspace:*",
     "@haneoka/vega-theme-haneoka": "workspace:*",
-    "@haneoka/vega-ui-portable": "workspace:*"
+    "@haneoka/vega-ui-portable": "workspace:*",
+    "@haneoka/vega-plugin-composite": "^0.1.0"
   },
   "peerDependencies": {
     "@haneoka/vega": "^0.1.0",
@@ -72,7 +75,8 @@
     "@haneoka/vega": "workspace:*",
     "pixi.js": "6.5.10",
     "three": "0.184.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "prettier": "3.7.4"
   },
   "publishConfig": {
     "access": "public",

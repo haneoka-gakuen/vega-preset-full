@@ -1,12 +1,7 @@
 import { readFile } from "node:fs/promises";
 
-const manifest = JSON.parse(
-  await readFile(new URL("../package.json", import.meta.url), "utf8"),
-);
-const distribution = await readFile(
-  new URL("../dist/index.js", import.meta.url),
-  "utf8",
-);
+const manifest = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
+const distribution = await readFile(new URL("../dist/index.js", import.meta.url), "utf8");
 if (!manifest.repository?.url?.endsWith("/vega-preset-full.git")) {
   throw new Error("package repository must point to the independent preset repository");
 }
@@ -30,6 +25,4 @@ for (const format of ["bbcode", "html", "latex", "markdown", "typst"]) {
     throw new Error(`${packageName} cannot be imported eagerly`);
   }
 }
-process.stdout.write(
-  "Preset package boundary verified: adapters only, optional formats remain lazy\n",
-);
+process.stdout.write("Preset package boundary verified: adapters only, optional formats remain lazy\n");
