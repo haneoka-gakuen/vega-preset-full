@@ -37,7 +37,12 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./capabilities": {
+      "types": "./dist/capabilities.d.ts",
+      "import": "./dist/capabilities.js",
+      "default": "./dist/capabilities.js"
+    }
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -59,7 +64,6 @@
     "@haneoka/vega-plugin-richtext-typst": "workspace:*",
     "@haneoka/vega-plugin-spine": "workspace:*",
     "@haneoka/vega-plugin-webgal": "workspace:*",
-    "@haneoka/vega-renderer-pixi": "workspace:*",
     "@haneoka/vega-renderer-three": "workspace:*",
     "@haneoka/vega-shell-default": "workspace:*",
     "@haneoka/vega-theme-haneoka": "workspace:*",
@@ -68,12 +72,10 @@
   },
   "peerDependencies": {
     "@haneoka/vega": "^0.1.0",
-    "pixi.js": ">=6.3.0 <7",
     "three": ">=0.184.0 <0.185.0"
   },
   "devDependencies": {
     "@haneoka/vega": "workspace:*",
-    "pixi.js": "6.5.10",
     "three": "0.184.0",
     "typescript": "^6.0.3",
     "prettier": "3.7.4"
