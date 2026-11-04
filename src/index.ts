@@ -10,9 +10,8 @@ import { createSpinePlugin, type SpineRuntimeAdapter } from "@haneoka/vega-plugi
 import { createVegaEndingPlugin, type VegaEndingPluginOptions } from "@haneoka/vega-plugin-ending";
 import { createVegaRichTextPlugin } from "@haneoka/vega-plugin-richtext";
 import { createWebGalCompatibilityPlugin } from "@haneoka/vega-plugin-webgal";
-import { createPixiRendererPlugin } from "@haneoka/vega-renderer-pixi";
 import { createThreeRendererPlugin } from "@haneoka/vega-renderer-three";
-import vegaDefaultShell from "@haneoka/vega-shell-default";
+import { createDefaultShellPlugin, type DefaultShellOptions } from "@haneoka/vega-shell-default";
 import { vegaHaneokaTheme, HANEOKA_POST_TEXTURE_ASSETS } from "@haneoka/vega-theme-haneoka";
 import { vegaPortableUiPlugin } from "@haneoka/vega-ui-portable";
 
@@ -25,12 +24,13 @@ export interface VegaFullPresetRichTextOptions {
 }
 
 export interface VegaFullPresetOptions {
-  readonly renderer?: "pixi" | "three" | "webgal" | false;
-  readonly shell?: boolean;
+  readonly renderer?: "three" | false;
+  readonly shell?: boolean | DefaultShellOptions;
   readonly theme?: "portable" | "haneoka" | "webgal" | false;
   readonly cubism?: CubismRuntimeAdapter | false;
   readonly composite?: boolean;
   readonly spine?: SpineRuntimeAdapter | false;
+  readonly webgal?: boolean;
   /** Completion screen. Enabled with portable defaults unless set to false. */
   readonly ending?: VegaEndingPluginOptions | false;
   /**
@@ -131,43 +131,33 @@ const withThemeDefault = (plugin: VegaPlugin, themeId?: string, includeThemes = 
  */
 export const createVegaFullPreset = (options: VegaFullPresetOptions = {}): readonly VegaPlugin[] => {
   const renderer = options.renderer ?? "three";
-  const theme = options.theme ?? (renderer === "webgal" ? "webgal" : options.shell === false ? "portable" : "haneoka");
+  const theme = options.theme ?? (options.shell === false ? "portable" : "haneoka");
   if (theme === "haneoka" && options.shell === false) {
     throw new TypeError("The Haneoka theme requires the portable UI and default shell");
   }
   const plugins: VegaPlugin[] = [];
   const richTextFormats = options.richText && typeof options.richText === "object" ? options.richText : undefined;
 
-  if (renderer === "webgal") {
-    plugins.push(
-      withThemeDefault(
-        createWebGalCompatibilityPlugin({
-          enableTheme: theme === "webgal",
-        }),
-        theme === "webgal" ? "webgal" : undefined,
-      ),
-    );
-  } else if (renderer === "pixi") {
-    plugins.push(createPixiRendererPlugin());
-  } else if (renderer === "three") {
+  if (renderer === "three") {
     plugins.push(
       createThreeRendererPlugin({
         ...(theme === "haneoka" ? { postTextureAssets: HANEOKA_POST_TEXTURE_ASSETS } : {}),
       }),
     );
   }
-  if (theme === "webgal" && renderer !== "webgal") {
+  if (theme === "webgal" || (renderer === "three" && options.webgal !== false)) {
     plugins.push(
       withThemeDefault(
         createWebGalCompatibilityPlugin({
-          enableRenderer: false,
-          enableCommands: renderer === "pixi" || renderer === "three",
+          enableTheme: theme === "webgal",
+          enableCommands: renderer === "three",
         }),
-        "webgal",
+        theme === "webgal" ? "webgal" : undefined,
+        theme === "webgal",
       ),
     );
   }
-  if (theme === "portable" || theme === "haneoka" || richTextFormats !== undefined) {
+  if (theme === "portable" || theme === "haneoka" || theme === "webgal" || richTextFormats !== undefined) {
     plugins.push(createVegaRichTextPlugin());
   }
   if (richTextFormats) {
@@ -180,7 +170,7 @@ export const createVegaFullPreset = (options: VegaFullPresetOptions = {}): reado
   if (theme === "portable") {
     plugins.push(withThemeDefault(vegaPortableUiPlugin, "portable"));
   }
-  if (theme === "haneoka") {
+  if (theme === "haneoka" || theme === "webgal") {
     plugins.push(withThemeDefault(vegaPortableUiPlugin));
   }
   if (options.composite !== false && renderer === "three") plugins.push(createCompositePlugin());
@@ -191,7 +181,13 @@ export const createVegaFullPreset = (options: VegaFullPresetOptions = {}): reado
     plugins.push(createSpinePlugin({ adapter: options.spine }));
   }
   if (options.shell !== false) {
-    plugins.push(withThemeDefault(vegaDefaultShell, undefined, theme !== false));
+    plugins.push(
+      withThemeDefault(
+        createDefaultShellPlugin(typeof options.shell === "object" ? options.shell : {}),
+        undefined,
+        theme !== false,
+      ),
+    );
   }
   if (theme === "haneoka") {
     plugins.push(withThemeDefault(vegaHaneokaTheme, "haneoka"));

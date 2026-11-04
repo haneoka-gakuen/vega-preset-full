@@ -13,7 +13,6 @@ packages:
   - ".dependencies/vega-plugin-richtext-typst"
   - ".dependencies/vega-plugin-spine"
   - ".dependencies/vega-plugin-webgal"
-  - ".dependencies/vega-renderer-pixi"
   - ".dependencies/vega-renderer-three"
   - ".dependencies/vega-shell-default"
   - ".dependencies/vega-theme-haneoka"

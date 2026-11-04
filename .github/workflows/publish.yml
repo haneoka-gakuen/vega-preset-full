@@ -69,11 +69,6 @@ jobs:
           persist-credentials: false
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          repository: haneoka-gakuen/vega-renderer-pixi
-          path: vega-preset-full/.dependencies/vega-renderer-pixi
-          persist-credentials: false
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
           repository: haneoka-gakuen/vega-renderer-three
           path: vega-preset-full/.dependencies/vega-renderer-three
           persist-credentials: false
@@ -129,7 +124,6 @@ jobs:
           pnpm --filter @haneoka/vega-plugin-richtext-typst build
           pnpm --filter @haneoka/vega-plugin-spine build
           pnpm --filter @haneoka/vega-plugin-ending build
-          pnpm --filter @haneoka/vega-renderer-pixi build
           pnpm --filter @haneoka/vega-renderer-three build
           pnpm --filter @haneoka/vega-plugin-composite build
           pnpm --filter @haneoka/vega-plugin-webgal build
