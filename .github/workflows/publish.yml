@@ -127,6 +127,13 @@ jobs:
         run: node scripts/verify-release-tag.mjs
       - name: Set up locked Vega Rust and WASM tools
         uses: ./vega-preset-full/.dependencies/vega/.github/actions/setup-wasm
+      - name: Check out Haneoka runtime profiles
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: haneoka-gakuen/vega-plugin-haneoka
+          ref: d02da4c16eee7413dbc07ade34ac288d05926456
+          path: vega-preset-full/.dependencies/vega-plugin-haneoka
+          persist-credentials: false
       - working-directory: vega-preset-full
         run: pnpm install --no-frozen-lockfile
       - working-directory: vega-preset-full
@@ -140,12 +147,13 @@ jobs:
           pnpm --filter @haneoka/vega-plugin-richtext-latex build
           pnpm --filter @haneoka/vega-plugin-richtext-markdown build
           pnpm --filter @haneoka/vega-plugin-richtext-typst build
+          pnpm --filter @haneoka/vega-renderer-three build
           pnpm --filter @haneoka/vega-plugin-spine build
           pnpm --filter @haneoka/vega-plugin-ending build
-          pnpm --filter @haneoka/vega-renderer-three build
           pnpm --filter @haneoka/vega-plugin-composite build
           pnpm --filter @haneoka/vega-plugin-webgal build
           pnpm --filter @haneoka/vega-shell-default build
+          pnpm --filter @haneoka/vega-plugin-haneoka build
           pnpm --filter @haneoka/vega-theme-haneoka build
           pnpm --filter @haneoka/vega-ui-portable build
       - working-directory: vega-preset-full
