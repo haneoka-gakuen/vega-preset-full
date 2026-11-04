@@ -121,6 +121,8 @@ jobs:
           node-version: 24
           cache: pnpm
           cache-dependency-path: vega-preset-full/pnpm-lock.yaml
+      - name: Set up locked Vega Rust and WASM tools
+        uses: ./vega-preset-full/.dependencies/vega/.github/actions/setup-wasm
       - working-directory: vega-preset-full
         run: pnpm install --no-frozen-lockfile
       - working-directory: vega-preset-full
