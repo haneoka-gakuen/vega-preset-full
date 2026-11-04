@@ -72,13 +72,15 @@
   },
   "peerDependencies": {
     "@haneoka/vega": "^0.1.0",
-    "three": ">=0.184.0 <0.185.0"
+    "three": ">=0.184.0 <0.185.0",
+    "@haneoka/vega-protocol": "^0.1.0"
   },
   "devDependencies": {
     "@haneoka/vega": "workspace:*",
     "three": "0.184.0",
     "typescript": "^6.0.3",
-    "prettier": "3.7.4"
+    "prettier": "3.7.4",
+    "@haneoka/vega-protocol": "workspace:*"
   },
   "publishConfig": {
     "access": "public",
